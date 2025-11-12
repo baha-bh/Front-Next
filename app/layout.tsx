@@ -59,7 +59,6 @@ export default function RootLayout({
             ["ИМПЕРИЯ", "/empire"],
             ["ABILITY", "/abilities"],
             ["BUILDS/PLANNERS", "/builds"],
-            ["ПОИСК", "/search"],
           ].map(([label, href]) => (
             <Link
               key={href}
