@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# Git submodules
+.gitmodules
+*/.git
+
 # debug
 npm-debug.log*
 yarn-debug.log*
