@@ -47,18 +47,14 @@ export default function RootLayout({
             </select>
           </div>
         </header>
-  {/* ["ГЕРОИ", "/heroes"],
-            ["ИМПЕРИЯ", "/empire"],
-            ["ABILITY", "/abilities"],
-            ["BUILDS/PLANNERS", "/builds"], */}
+
         {/* Навигация */}
         <nav className="flex justify-center items-center space-x-6 bg-black/70 backdrop-blur-md py-3 border-y border-gray-700">
           {[
-            ["ЮНИТЫ", "/warrior"],
+            ["ЮНИТЫ", "/warriors"],
             ["КНИГИ", "/books"],
             ["ЗАКЛИНАНИЯ", "/spells"],
             ["ГЛОБАЛЬНАЯ КАРТА", "/map"],
-          
           ].map(([label, href]) => (
             <Link
               key={href}
