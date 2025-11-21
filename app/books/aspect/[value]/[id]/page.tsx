@@ -6,18 +6,16 @@ import { books, Book } from "../../../../lib/book";
 import SpellCard from "../../../../component/SpellCard";
 
 export default function BookPage() {
-  const params = useParams(); // получаем параметры из URL
+  const params = useParams(); 
   const router = useRouter();
 
   const aspect = params.value;
   const id = Number(params.id);
 
-  // Находим книгу по аспекту и id
   const book: Book | undefined = books.find(
     (b) => b.aspect === aspect && b.id === id
   );
 
-  // Все книги данного аспекта
   const booksOfAspect = books.filter((b) => b.aspect === aspect);
 
   if (!book) {

@@ -1,18 +1,32 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { units } from "../../../lib/warrior";
+import { units, Aspect, UnitClass, UnitType, Culture } from "../../../lib/warrior";
 import UnitCard from "../../../component/warrior-card";
 
 export default function FilteredUnitsPage() {
-  const pathname = usePathname(); // пример: /warriors/culture/ФЕОДАЛЫ
-  const parts = pathname.split("/"); // ["", "warriors", "culture", "ФЕОДАЛЫ"]
+  const pathname = usePathname();
+  const parts = pathname.split("/");
   const key = parts[2];
   const value = decodeURIComponent(parts[3]);
 
   const filtered = units.filter((unit) => {
-    if (key === "aspects") return unit.aspects.includes(value as any);
-    return unit[key as keyof typeof unit] === value;
+    switch (key) {
+      case "culture":
+        return unit.culture === (value as Culture);
+
+      case "aspect":
+        return unit.aspects.includes(value as Aspect);
+
+      case "class":
+        return unit.unitClass === (value as UnitClass);
+
+      case "type":
+        return unit.type === (value as UnitType);
+
+      default:
+        return false;
+    }
   });
 
   return (

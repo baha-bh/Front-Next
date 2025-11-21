@@ -73,9 +73,8 @@ export default function WarriorsPage() {
   const router = useRouter();
 
   const handleSelect = (key: string, value: string) => {
-    // Переход на страницу с выбранной категорией
-    router.push(`/warriors/${key}/${value}`);
-  };
+  router.push(`/warriors/${key}/${encodeURIComponent(value)}`);
+}
 
   return (
     <main className="w-screen min-h-screen bg-gradient-to-b from-zinc-900 to-black text-gray-100 p-8 overflow-x-hidden">
@@ -91,8 +90,7 @@ export default function WarriorsPage() {
               onClick={() =>
                 setOpenTab(openTab === tab.title ? null : tab.title)
               }
-              className="flex items-center gap-2 px-6 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl transition-all"
-            >
+              className="flex items-center gap-2 px-6 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl transition-all">
               {tab.title}
               <ChevronDown
                 className={`w-4 h-4 transition-transform ${
@@ -106,8 +104,7 @@ export default function WarriorsPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute z-10 mt-2 w-52 bg-zinc-800 border border-zinc-700 rounded-xl shadow-lg"
-              >
+                className="absolute z-10 mt-2 w-52 bg-zinc-800 border border-zinc-700 rounded-xl shadow-lg">
                 <ul className="p-2">
                   {tab.items.map((item) => (
                     <li
