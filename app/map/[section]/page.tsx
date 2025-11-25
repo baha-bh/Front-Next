@@ -2,45 +2,47 @@
 
 import { usePathname } from "next/navigation";
 import MapMaterialCard from "../../component/MapMaterialCard";
-import AncientWonderCard from "../../component/AncientWondersCard";
+import AncientWondersCard from "../../component/AncientWondersCard";
 import LandmarkCard from "../../component/LandmarksCard";
 
 import { landmarks, type Landmark } from "../../lib/landmarks";
 import { magicMaterials, type MagicMaterial } from "../../lib/Map";
-import { ancientWonders, type AncientWonder } from "../../lib/Ancient";
+import EventCard from "@/app/component/EventsCard";
 
 export default function MapSectionPage() {
   const pathname = usePathname();
   const parts = pathname.split("/");
-  const section = parts[2]; 
+  const section = parts[2];
 
-  let content: JSX.Element[] | JSX.Element = [];
+  let content: JSX.Element;
 
   switch (section) {
     case "materials":
-      content = magicMaterials.map((material: MagicMaterial) => (
-        <MapMaterialCard key={material.id} material={material} />
-      ));
+      content = (
+        <div className="flex flex-col gap-6 items-center">
+          {magicMaterials.map((material: MagicMaterial) => (
+            <MapMaterialCard key={material.id} material={material} />
+          ))}
+        </div>
+      );
       break;
 
     case "wonders":
-      content = ancientWonders.map((wonder: AncientWonder) => (
-        <AncientWonderCard key={wonder.id} wonder={wonder} />
-      ));
+      content = <AncientWondersCard />;
       break;
 
     case "landmarks":
-      content = landmarks.map((landmark: Landmark) => (
-        <LandmarkCard key={landmark.id} landmark={landmark} />
-      ));
+      content = (
+        <div className="flex flex-col gap-6 items-center">
+          {landmarks.map((landmark: Landmark) => (
+            <LandmarkCard key={landmark.id} landmark={landmark} />
+          ))}
+        </div>
+      );
       break;
 
     case "cosmic":
-      content = (
-        <p className="text-center text-gray-400 mt-10">
-          Раздел "Cosmic Happenings" пока пуст
-        </p>
-      );
+      content = <EventCard />;
       break;
 
     default:
@@ -55,10 +57,7 @@ export default function MapSectionPage() {
         {section.replace("-", " ")}
       </h1>
 
-      {/* Вертикальное отображение карточек */}
-      <div className="flex flex-col gap-6 items-center">
-        {content}
-      </div>
+      {content}
     </main>
   );
 }
