@@ -34,46 +34,55 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-black/70">
-      <form
-        onSubmit={handleRegister}
-        className="flex flex-col gap-4 bg-gray-900 p-8 rounded shadow-lg w-80 text-white"
-      >
-        <h2 className="text-2xl font-bold text-center mb-4">Register</h2>
+    <div className="w-full max-w-md p-8 bg-black/70 rounded-md shadow-md text-white">
+      
+        <h1 className="text-2xl font-bold mb-6 text-center">Регистрация</h1>
 
-        {error && <div className="text-red-400 text-sm">{error}</div>}
+        {error && <p className="text-red-400 mb-4">{error}</p>}
 
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="border p-2 rounded bg-gray-800 text-white"
-        />
+        <form onSubmit={handleRegister} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Имя"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="px-3 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded bg-gray-800 text-white"
-        />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="px-3 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 rounded bg-gray-800 text-white"
-        />
+          <input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="px-3 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
 
-        <button
-          type="submit"
-          className="bg-yellow-400 text-black py-2 rounded hover:bg-yellow-500 transition"
-        >
-          Register
-        </button>
-      </form>
-    </div>
+          <button
+            type="submit"
+            className="bg-yellow-400 text-black font-semibold py-2 rounded hover:bg-yellow-300 transition"
+          >
+            Зарегистрироваться
+          </button>
+        </form>
+
+        <p className="mt-4 text-center text-sm text-gray-300">
+          Уже есть аккаунт?{" "}
+          <a href="/login" className="text-yellow-400 hover:underline">
+            Войти
+          </a>
+        </p>
+      </div>
+    
   );
 }

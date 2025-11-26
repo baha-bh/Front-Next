@@ -68,13 +68,12 @@ export default function EventCard() {
 
               {/* ПРАВЫЙ БЛОК: картинка с маской и поверх placeholder */}
               <div className="relative w-64 h-64 flex-shrink-0">
-                <div className="absolute inset-0 bg-cover mask-portal"
-                style={{ backgroundImage: `url(${event.image})`, backgroundPosition: "center" }}
-                />
+                <div className="absolute inset-0 bg-cover mask-portal rounded-full"
+                style={{ backgroundImage: `url(${event.image})`, backgroundPosition: "center" }}/>
                 <img
                 src="https://minionsart.github.io/aow4db/Icons/Interface/Runecircle.png"
                 alt="overlay"
-                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                className="absolute inset-0 w-70 h-70 object-cover pointer-events-none -translate-x-[-2px] -translate-y-[15px]"
                 />
                 </div>
             </div>
