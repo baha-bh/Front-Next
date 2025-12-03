@@ -1,24 +1,39 @@
-import { NextRequest, NextResponse } from "next/server";
-
-// Простейший пример: данные сохраняются в памяти
-let users: { id: string; email: string; password: string; name?: string }[] = [];
+import { NextRequest } from "next/server";
+import { createClient } from "../../lib/supabaseServer";
 
 export async function POST(req: NextRequest) {
-  const { email, password, name } = await req.json();
+  try {
+    const { email, password, name } = await req.json();
 
-  // Проверка на существующего пользователя
-  if (users.find((u) => u.email === email)) {
-    return NextResponse.json({ error: "User already exists" }, { status: 400 });
+    const supabase = await createClient();
+
+    // 1️⃣ Создаём пользователя в Supabase Auth
+    const { data: userData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (signUpError) {
+      return new Response(JSON.stringify({ error: signUpError.message }), { status: 400 });
+    }
+
+    if (!userData.user) {
+      return new Response(JSON.stringify({ error: "Не удалось создать пользователя" }), { status: 400 });
+    }
+
+    const userId = userData.user.id;
+
+    // 2️⃣ Создаём или обновляем профиль в таблице profiles
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .upsert([{ id: userId, username: name, email }]); // <- здесь upsert
+
+    if (profileError) {
+      return new Response(JSON.stringify({ error: profileError.message }), { status: 400 });
+    }
+
+    return new Response(JSON.stringify({ success: true, userId }));
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
-
-  const newUser = {
-    id: (users.length + 1).toString(),
-    email,
-    password, // В реальном приложении — хэшировать!
-    name: name || "User",
-  };
-
-  users.push(newUser);
-
-  return NextResponse.json({ message: "User created", user: newUser });
 }
