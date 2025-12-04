@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { getServerSession } from "next-auth/next";
-
+import { authOptions } from "./api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers"; // <- статический импорт
+import { headers } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
