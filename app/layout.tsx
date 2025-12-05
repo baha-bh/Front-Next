@@ -4,8 +4,6 @@ import Link from "next/link";
 import "./globals.css";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]/route";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers"; // <- статический импорт
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,13 +15,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
   title: "Age of Wonders 4 Database",
   description: "Fan-made interactive database for Age of Wonders 4",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Получаем пользователя (если NextAuth подключен)
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
 
   return (
     <html lang="ru">
@@ -36,16 +36,27 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <div className="text-3xl font-bold text-yellow-300 tracking-wide text-center">
             Age of Wonders 4 Database
           </div>
+
           <div className="flex items-center space-x-6">
             <span className="text-sm text-gray-300">WIP</span>
+
             <select className="bg-gray-800 text-white border border-gray-600 rounded px-2 py-1 text-sm">
               <option>Русский</option>
               <option>English</option>
             </select>
+
+            {/* 🔥 Аватарка с переходом */}
+            <Link href="/profile" className="group">
+              <img
+                src={user?.image || "/default-avatar.png"}
+                alt="User Avatar"
+                className="w-10 h-10 rounded-full border border-gray-500 object-cover group-hover:border-yellow-300 transition-all duration-300"
+              />
+            </Link>
           </div>
         </header>
 
-        {/* Навигация — всегда видна */}
+        {/* Навигация */}
         <nav className="flex justify-center items-center space-x-6 bg-black/70 backdrop-blur-md py-3 border-y border-gray-700">
           {[
             ["ЮНИТЫ", "/warriors"],
