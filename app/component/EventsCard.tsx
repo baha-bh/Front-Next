@@ -36,22 +36,33 @@ export default function EventCard({ event }: Props) {
           </div>
         </div>
 
-        {/* ПРАВЫЙ БЛОК: картинка с маской и поверх placeholder */}
+        {/* ПРАВЫЙ БЛОК: картинка с маской CosmicHappeningPortal */}
         <div className="relative w-64 h-64 flex-shrink-0 hidden md:block">
-          <div
-            className="absolute inset-0 bg-cover mask-portal rounded-full"
+          
+          {/* Слой с картинкой события */}
+          <img
+            src={event.image}
+            alt="Event visual"
+            className="absolute inset-0 w-full h-full object-cover"
             style={{
-              backgroundImage: `url(${event.image})`,
-              backgroundPosition: "center",
+              maskImage: `url(/CosmicHappeningPortal.png)`,
+              WebkitMaskImage: `url(/CosmicHappeningPortal.png)`,
+              maskSize: "contain",
+              WebkitMaskSize: "contain",
+              maskRepeat: "no-repeat",
+              WebkitMaskRepeat: "no-repeat",
+              maskPosition: "center",
+              WebkitMaskPosition: "center",
             }}
           />
+          
+          {/* Слой с рамкой (Runecircle) поверх маски */}
           <img
             src="https://minionsart.github.io/aow4db/Icons/Interface/Runecircle.png"
             alt="overlay"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none scale-[1.15] translate-y-[5%]"
-/>
-</div>
-</div>
-</div>
-);
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none scale-100"/>
+            </div>
+        </div>
+      </div>
+  );
 }
