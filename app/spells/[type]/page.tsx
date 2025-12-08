@@ -11,19 +11,28 @@ interface SpellWithBook extends Spell {
   uid: string;
 }
 
+const categoriesMap: Record<string, string> = {
+  transformation: "Transformations",
+  combat: "Combat Spells",
+  enchantment: "Enchantments",
+  strategic: "Strategic Spells",
+  siege: "Siege Projects",
+};
+
 export default function SpellsByTypePage() {
   const params = useParams();
   const type = params?.type;
 
   if (!type) {
     return (
-      <main className="w-screen h-screen flex items-center justify-center text-gray-200">
+      <div className="flex-1 flex items-center justify-center text-gray-500">
         <p>Error: invalid spell category.</p>
-      </main>
+      </div>
     );
   }
 
   const typeStr = Array.isArray(type) ? type[0].toLowerCase() : type.toLowerCase();
+  const displayTitle = categoriesMap[typeStr] || typeStr;
 
   const allSpells = useMemo<SpellWithBook[]>(() => {
     return books.flatMap((b: Book) =>
@@ -41,11 +50,13 @@ export default function SpellsByTypePage() {
   );
 
   return (
-    <main className="w-screen min-h-screen bg-gradient-to-b from-zinc-900 to-black text-gray-100 p-8">
-      
-      <h1 className="text-3xl font-bold text-center mb-10 capitalize">
-        {typeStr} Spells
-      </h1>
+    <section className="flex-1 p-6 lg:p-10 overflow-y-auto w-full">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2 uppercase tracking-wider">
+          {displayTitle}
+        </h1>
+        <p className="text-zinc-400 text-sm">Найдено заклинаний: {filtered.length}</p>
+      </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filtered.map((spell) => (
@@ -54,10 +65,12 @@ export default function SpellsByTypePage() {
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-center text-gray-400 mt-10">
-          No spells found for this category.
-        </p>
+        <div className="col-span-full py-20 text-center bg-zinc-900/50 rounded-2xl border border-zinc-800 border-dashed w-full">
+          <p className="text-xl text-gray-400">
+            Нет заклинаний в этой категории
+          </p>
+        </div>
       )}
-    </main>
+    </section>
   );
 }
