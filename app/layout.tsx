@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import { SavedItemsProvider } from "./context/SavedItemsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,53 +33,55 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen text-white font-serif bg-fixed bg-cover bg-center`}
         style={{ backgroundImage: "url('/fon.jpg')" }}
       >
-        {/* Верхняя панель */}
-        <header className="flex justify-between items-center px-8 py-3 bg-black/70 backdrop-blur-md shadow-md">
-          <div className="text-3xl font-bold text-yellow-300 tracking-wide text-center">
-            Age of Wonders 4 Database
-          </div>
+        <SavedItemsProvider>
+          {/* Верхняя панель */}
+          <header className="flex justify-between items-center px-8 py-3 bg-black/70 backdrop-blur-md shadow-md">
+            <div className="text-3xl font-bold text-yellow-300 tracking-wide text-center">
+              Age of Wonders 4 Database
+            </div>
 
-          <div className="flex items-center space-x-6">
-            <span className="text-sm text-gray-300">WIP</span>
+            <div className="flex items-center space-x-6">
+              <span className="text-sm text-gray-300">WIP</span>
 
-            <select className="bg-gray-800 text-white border border-gray-600 rounded px-2 py-1 text-sm">
-              <option>Русский</option>
-              <option>English</option>
-            </select>
+              <select className="bg-gray-800 text-white border border-gray-600 rounded px-2 py-1 text-sm">
+                <option>Русский</option>
+                <option>English</option>
+              </select>
 
-            {/* Аватар */}
-            <Link href="/profile" className="group">
-              <img
-                src={"/default-avatar.png"}
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full border border-gray-500 object-cover group-hover:border-yellow-300 transition-all duration-300"
-              />
-            </Link>
-          </div>
-        </header>
+              {/* Аватар */}
+              <Link href="/profile" className="group">
+                <img
+                  src={"/default-avatar.png"}
+                  alt="User Avatar"
+                  className="w-10 h-10 rounded-full border border-gray-500 object-cover group-hover:border-yellow-300 transition-all duration-300"
+                />
+              </Link>
+            </div>
+          </header>
 
-        {/* Навигация */}
-        <nav className="flex justify-center items-center space-x-6 bg-black/70 backdrop-blur-md py-3 border-y border-gray-700">
-          {[
-            ["ЮНИТЫ", "/warriors"],
-            ["КНИГИ", "/books"],
-            ["ЗАКЛИНАНИЯ", "/spells"],
-            ["ГЛОБАЛЬНАЯ КАРТА", "/map"],
-          ].map(([label, href]) => (
-            <Link
-              key={href}
-              href={href}
-              className="relative text-lg font-semibold tracking-wide text-gray-200 hover:text-yellow-300 transition duration-300 group"
-            >
-              {label}
-              <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          ))}
-        </nav>
+          {/* Навигация */}
+          <nav className="flex justify-center items-center space-x-6 bg-black/70 backdrop-blur-md py-3 border-y border-gray-700">
+            {[
+              ["ЮНИТЫ", "/warriors"],
+              ["КНИГИ", "/books"],
+              ["ЗАКЛИНАНИЯ", "/spells"],
+              ["ГЛОБАЛЬНАЯ КАРТА", "/map"],
+            ].map(([label, href]) => (
+              <Link
+                key={href}
+                href={href}
+                className="relative text-lg font-semibold tracking-wide text-gray-200 hover:text-yellow-300 transition duration-300 group"
+              >
+                {label}
+                <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            ))}
+          </nav>
 
-        <main className="flex flex-col items-center text-center py-16 bg-black/50 min-h-[80vh]">
-          {children}
-        </main>
+          <main className="flex flex-col items-center text-center py-16 bg-black/50 min-h-[80vh]">
+            {children}
+          </main>
+        </SavedItemsProvider>
       </body>
     </html>
   );
