@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "./api/auth/[...nextauth]/route";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,10 +18,13 @@ export const metadata: Metadata = {
   description: "Fan-made interactive database for Age of Wonders 4",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Получаем пользователя (если NextAuth подключен)
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Пока у нас нет авторизации — пользователь всегда null
+  const user = null;
 
   return (
     <html lang="ru">
@@ -45,10 +46,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <option>English</option>
             </select>
 
-            {/* 🔥 Аватарка с переходом */}
+            {/* Аватар */}
             <Link href="/profile" className="group">
               <img
-                src={user?.image || "/default-avatar.png"}
+                src={"/default-avatar.png"}
                 alt="User Avatar"
                 className="w-10 h-10 rounded-full border border-gray-500 object-cover group-hover:border-yellow-300 transition-all duration-300"
               />

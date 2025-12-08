@@ -1,27 +1,21 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+type User = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+};
 
-  if (!session) {
-    return (
-      <div className="text-center py-20">
-        <h1 className="text-3xl font-bold mb-4">Вы не авторизованы</h1>
-
-        <Link
-          href="/api/auth/signin"
-          className="text-yellow-400 underline text-lg"
-        >
-          Войти
-        </Link>
-      </div>
-    );
-  }
-
-  const user = session.user;
+export default function ProfilePage() {
+  // Заглушка вместо null
+  const user: User = {
+    name: "Player One",
+    email: "player@example.com",
+    image: "/default-avatar.png",
+  };
 
   return (
     <div className="max-w-2xl mx-auto mt-10 bg-black/50 p-8 rounded-xl shadow-xl border border-gray-800">
@@ -41,7 +35,7 @@ export default async function ProfilePage() {
         <div className="mt-6 text-xl space-y-2">
           <p>
             <span className="font-bold text-gray-400">Имя: </span>
-            {user.name || "Без имени"}
+            {user.name}
           </p>
 
           <p>
@@ -51,7 +45,7 @@ export default async function ProfilePage() {
         </div>
 
         <Link
-          href="/api/auth/signout"
+          href="/logout"
           className="mt-6 bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-white font-semibold transition"
         >
           Выйти

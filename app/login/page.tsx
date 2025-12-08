@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -9,20 +10,24 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (email === "basanovbahtiyar@gmail.com" && password === "2610") {  
-      document.cookie = "loggedIn=true; path=/; max-age=3600";
-      router.push("/"); 
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
     } else {
-      setError("Неверный email или пароль");
+      router.push("/dashboard"); 
     }
   };
 
   return (
-    <div className="flex justify-center ">
+    <div className="flex justify-center">
       <div className="w-full max-w-md p-8 bg-black/70 rounded-md shadow-md text-white">
         <h1 className="text-2xl font-bold mb-6 text-center">Вход в систему</h1>
 
