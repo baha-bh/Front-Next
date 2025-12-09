@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { SavedItemsProvider } from "./context/SavedItemsContext";
+import HeaderAvatar from "./component/HeaderAvatar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,9 +25,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Пока у нас нет авторизации — пользователь всегда null
-  const user = null;
-
   return (
     <html lang="ru">
       <body
@@ -47,15 +45,7 @@ export default async function RootLayout({
                 <option>Русский</option>
                 <option>English</option>
               </select>
-
-              {/* Аватар */}
-              <Link href="/profile" className="group">
-                <img
-                  src={"/default-avatar.png"}
-                  alt="User Avatar"
-                  className="w-10 h-10 rounded-full border border-gray-500 object-cover group-hover:border-yellow-300 transition-all duration-300"
-                />
-              </Link>
+              <HeaderAvatar />
             </div>
           </header>
 
