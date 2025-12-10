@@ -174,9 +174,31 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { units, Aspect, UnitClass, UnitType, Culture } from "../../../lib/warrior";
+import { supabase } from "../../../lib/supabase";
 import UnitCard from "../../../component/warrior-card";
+import { Loader2 } from "lucide-react";
+
+// Типы данных, соответствующие вашей БД
+type Unit = {
+  id: number;
+  name: string;
+  tier: string;
+  aspects: string[];
+  health: number;
+  attack: number;
+  defense: number;
+  resistance: number;
+  movement: number;
+  upkeep: any;
+  cost: any;
+  unit_class: string; // В БД это поле называется unit_class
+  type: string;
+  culture: string;
+  vulnerabilities: string[];
+  image: string;
+};
 
 const titles: Record<string, string> = {
   culture: "Культура",
@@ -188,50 +210,97 @@ const titles: Record<string, string> = {
 export default function FilteredUnitsPage() {
   const params = useParams();
   const key = params.key as string;
+  // Декодируем значение из URL (например "ФЕОДАЛЫ" -> "Феодалы" если нужно, или оставляем как есть)
   const value = decodeURIComponent(params.value as string);
 
-  const filtered = units.filter((unit) => {
-    switch (key) {
-      case "culture":
-        return unit.culture === (value as Culture);
-      case "aspect":
-        return unit.aspects.includes(value as Aspect);
-      case "class":
-        return unit.unitClass === (value as UnitClass);
-      case "type":
-        return unit.type === (value as UnitType);
-      default:
-        return false;
-    }
-  });
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      setLoading(true);
+      let query = supabase.from("units").select("*");
+
+      // Логика фильтрации в зависимости от параметра URL
+      switch (key) {
+        case "culture":
+          // Фильтр по культуре (точное совпадение)
+          query = query.eq("culture", value);
+          break;
+        case "aspect":
+          // Фильтр по массиву аспектов (содержит значение)
+          query = query.contains("aspects", [value]);
+          break;
+        case "class":
+          // Фильтр по классу (точное совпадение)
+          // В базе поле называется unit_class
+          query = query.eq("unit_class", value);
+          break;
+        case "type":
+          // Фильтр по типу (точное совпадение)
+          query = query.eq("type", value);
+          break;
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error fetching units:", error);
+      } else {
+        setUnits(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchUnits();
+  }, [key, value]);
 
   const categoryTitle = titles[key] || key;
 
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[50vh] w-full">
+        <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
+      </div>
+    );
+  }
+
   return (
-    // Мы убрали <aside> и обертку flex, так как они теперь находятся в layout.tsx
     <section className="flex-1 p-6 lg:p-10 overflow-y-auto w-full">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2 uppercase tracking-wider">
           {categoryTitle}: <span className="text-yellow-500">{value}</span>
         </h1>
-        <p className="text-zinc-400 text-sm">Найдено юнитов: {filtered.length}</p>
+        <p className="text-zinc-400 text-sm">Найдено юнитов: {units.length}</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
-        {filtered.length > 0 ? (
-          filtered.map((unit) => (
+        {units.length > 0 ? (
+          units.map((unit) => (
             <div key={unit.id} className="transform transition hover:scale-[1.02]">
-              <UnitCard unit={unit} />
+              
+              <UnitCard 
+                unit={{
+                  ...unit,
+                  // Приводим типы к any, чтобы TypeScript пропустил данные из БД
+                  unitClass: unit.unit_class as any,
+                  tier: unit.tier as any,
+                  // aspects: unit.aspects as any, // УДАЛЕНО: Это свойство не нужно в карточке
+                  type: unit.type as any,
+                  culture: unit.culture as any,
+                }} 
+              />
             </div>
           ))
         ) : (
           <div className="col-span-full py-20 text-center bg-zinc-900/50 rounded-2xl border border-zinc-800 border-dashed w-full">
-            <p className="text-xl text-gray-400">
-              Нет юнитов для выбранного фильтра
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
+<p className="text-xl text-gray-400">
+Нет юнитов для выбранного фильтра
+</p>
+</div>
+)}
+</div>
+</section>
+);
 }
+

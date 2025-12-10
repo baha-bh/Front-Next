@@ -1,0 +1,102 @@
+insert into units (
+  name, tier, aspects, health, attack, defense, resistance, movement, 
+  cost, upkeep, unit_class, type, culture, image, book_id
+) values 
+-- 1. Лучница
+(
+  'Лучница',
+  'I',
+  ARRAY[]::text[],
+  50, 10, 0, 0, 32,
+  '{"resource1": "Gold", "amount1": 60, "resource2": "Mana", "amount2": 80}'::jsonb,
+  '{"resource1": "Gold", "amount1": 8}'::jsonb,
+  'Дальний бой',
+  'Гуманоид',
+  'Феодалы',
+  'https://minionsart.github.io/aow4db/PreviewsAvif/archer.avif',
+  null
+),
+-- 2. Защитник
+(
+  'Защитник',
+  'I',
+  ARRAY[]::text[],
+  70, 10, 5, 0, 32,
+  '{"resource1": "Gold", "amount1": 60, "resource2": "Mana", "amount2": 80}'::jsonb,
+  '{"resource1": "Gold", "amount1": 8}'::jsonb,
+  'Воин со щитом',
+  'Гуманоид',
+  'Феодалы',
+  'https://minionsart.github.io/aow4db/PreviewsAvif/defender.avif',
+  null
+),
+-- 3. Ополченцы
+(
+  'Ополченцы',
+  'I',
+  ARRAY[]::text[],
+  70, 10, 1, 0, 32,
+  '{"resource1": "Gold", "amount1": 50, "resource2": "Mana", "amount2": 60}'::jsonb,
+  '{"resource1": "Gold", "amount1": 8, "resource2": "Mana", "amount2": 8}'::jsonb,
+  'Древковое оружие',
+  'Гуманоид',
+  'Феодалы',
+  'https://minionsart.github.io/aow4db/PreviewsAvif/militia.avif',
+  null
+),
+-- 4. Рыцарь-кандидат
+(
+  'Рыцарь-кандидат',
+  'II',
+  ARRAY[]::text[],
+  70, 27, 2, 2, 48,
+  '{"resource1": "Gold", "amount1": 100, "resource2": "Mana", "amount2": 140}'::jsonb,
+  '{"resource1": "Gold", "amount1": 12}'::jsonb,
+  'Ударное оружие',
+  'Гуманоид',
+  'Феодалы',
+  'https://minionsart.github.io/aow4db/PreviewsAvif/aspirant_knight.avif',
+  null
+),
+-- 5. Знаменосец
+(
+  'Знаменосец',
+  'II',
+  ARRAY[]::text[],
+  70, 14, 1, 2, 32,
+  '{"resource1": "Gold", "amount1": 100, "resource2": "Mana", "amount2": 140}'::jsonb,
+  '{"resource1": "Gold", "amount1": 12}'::jsonb,
+  'Поддержка',
+  'Гуманоид',
+  'Феодалы',
+  'https://minionsart.github.io/aow4db/PreviewsAvif/bannerman.avif',
+  null
+),
+-- 6. Длиный лук
+(
+  'Длиный лук',
+  'III',
+  ARRAY[]::text[],
+  80, 14, 2, 2, 32,
+  '{"resource1": "Gold", "amount1": 140, "resource2": "Mana", "amount2": 220}'::jsonb,
+  '{"resource1": "Gold", "amount1": 20}'::jsonb,
+  'Дальний бой',
+  'Гуманоид',
+  'Феодалы',
+  'https://minionsart.github.io/aow4db/PreviewsAvif/longbow.avif',
+  null
+),
+-- 7. Рыцарь
+(
+  'Рыцарь',
+  'IV',
+  ARRAY[]::text[],
+  110, 27, 4, 4, 48,
+  '{"resource1": "Gold", "amount1": 200, "resource2": "Mana", "amount2": 300}'::jsonb,
+  '{"resource1": "Gold", "amount1": 30}'::jsonb,
+  'Ударное оружие', -- В вашем описании был "Дальний бой", но для Рыцаря обычно "Ударное оружие". Оставил как вы просили.
+  'Гуманоид',
+  'Феодалы',
+'https://minionsart.github.io/aow4db/PreviewsAvif/knight.avif', 
+null
+);
