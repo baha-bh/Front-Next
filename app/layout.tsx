@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 import { SavedItemsProvider } from "@/context/SavedItemsContext";
 import HeaderAvatar from "./component/HeaderAvatar";
+import AdminButton from "./component/AdminButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,10 +42,7 @@ export default async function RootLayout({
             <div className="flex items-center space-x-6">
               <span className="text-sm text-gray-300">WIP</span>
 
-              <select className="bg-gray-800 text-white border border-gray-600 rounded px-2 py-1 text-sm">
-                <option>Русский</option>
-                <option>English</option>
-              </select>
+              <AdminButton />
               <HeaderAvatar />
             </div>
           </header>

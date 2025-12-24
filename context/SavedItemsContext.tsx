@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../app/lib/supabase";
 
 interface SavedItemsContextType {
   savedSpells: string[];
@@ -8,8 +9,8 @@ interface SavedItemsContextType {
   savedUnits: string[];
   isLoading: boolean;
   toggleSpell: (name: string) => void;
-  toggleBook: (name: string) => void; // Принимаем имя
-  toggleUnit: (name: string) => void; // Принимаем имя
+  toggleBook: (name: string) => void;
+  toggleUnit: (name: string) => void;
 }
 
 const SavedItemsContext = createContext<SavedItemsContextType | undefined>(undefined);
@@ -19,13 +20,35 @@ export function SavedItemsProvider({ children }: { children: React.ReactNode }) 
   const [savedBooks, setSavedBooks] = useState<string[]>([]);
   const [savedUnits, setSavedUnits] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // 1. Следим за авторизацией
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // 2. Загружаем данные при смене пользователя
   useEffect(() => {
     const load = () => {
+      setIsLoading(true);
       try {
-        setSavedSpells(JSON.parse(localStorage.getItem("saved_spells") || "[]"));
-        setSavedBooks(JSON.parse(localStorage.getItem("saved_books") || "[]"));
-        setSavedUnits(JSON.parse(localStorage.getItem("saved_units") || "[]"));
+        // Если пользователь не авторизован, используем ключ 'guest'
+        // Если авторизован - используем его ID
+        const suffix = userId ? `_${userId}` : "_guest";
+
+        setSavedSpells(JSON.parse(localStorage.getItem(`saved_spells${suffix}`) || "[]"));
+        setSavedBooks(JSON.parse(localStorage.getItem(`saved_books${suffix}`) || "[]"));
+        setSavedUnits(JSON.parse(localStorage.getItem(`saved_units${suffix}`) || "[]"));
       } catch (e) {
         console.error("Ошибка чтения localStorage", e);
       } finally {
@@ -33,15 +56,17 @@ export function SavedItemsProvider({ children }: { children: React.ReactNode }) 
       }
     };
     load();
-  }, []);
+  }, [userId]);
 
-  const toggleItem = (key: string, currentList: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, item: string) => {
+  const toggleItem = (keyBase: string, currentList: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, item: string) => {
     const newList = currentList.includes(item)
       ? currentList.filter((i) => i !== item)
       : [...currentList, item];
     
     setList(newList);
-    localStorage.setItem(key, JSON.stringify(newList));
+    
+    const suffix = userId ? `_${userId}` : "_guest";
+    localStorage.setItem(`${keyBase}${suffix}`, JSON.stringify(newList));
   };
 
   const toggleSpell = (name: string) => toggleItem("saved_spells", savedSpells, setSavedSpells, name);

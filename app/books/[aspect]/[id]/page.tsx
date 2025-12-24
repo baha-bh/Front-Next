@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../../lib/supabase";
 import SpellCard from "../../../component/SpellCard";
-import { Loader2 } from "lucide-react";
+import { Loader2, Heart } from "lucide-react";
+import { useSavedItems } from "@/context/SavedItemsContext";
 
-// Типы данных (можно вынести в отдельний файл types.ts)
 type Spell = {
   id: number;
   name: string;
@@ -35,6 +35,7 @@ export default function BookPage() {
 
   const [book, setBook] = useState<BookWithSpells | null>(null);
   const [loading, setLoading] = useState(true);
+  const { savedBooks, toggleBook } = useSavedItems();
 
   useEffect(() => {
     const fetchBookData = async () => {
@@ -80,13 +81,25 @@ export default function BookPage() {
 
   return (
     <section className="w-full h-full overflow-y-auto bg-zinc-950 p-6 lg:p-10 space-y-8 animate-in fade-in duration-500">
-      
-      <h1 className="text-3xl font-bold text-gray-100 text-center uppercase tracking-wider">
-        {book.name}{" "}
-        <span className="text-zinc-600 text-xl align-top ml-2">
-          Tier {book.tier}
-        </span>
-      </h1>
+      <div className="flex items-center justify-center gap-4">
+        <h1 className="text-3xl font-bold text-gray-100 text-center uppercase tracking-wider">
+          {book.name}{" "}
+          <span className="text-zinc-600 text-xl align-top ml-2">
+            Tier {book.tier}
+          </span>
+        </h1>
+        
+        <button
+          onClick={() => toggleBook(book.name)}
+          className={`p-2 rounded-full transition-all ${
+            savedBooks.includes(book.name)
+              ? "bg-red-500/20 text-red-500 hover:bg-red-500/30" 
+              : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+          }`}
+        >
+          <Heart className={`w-6 h-6 ${savedBooks.includes(book.name) ? "fill-current" : ""}`} />
+        </button>
+      </div>
 
       <div className="relative w-full h-auto min-h-[300px] p-8 rounded-2xl border border-gray-800 shadow-lg flex flex-col md:flex-row items-start gap-8 overflow-hidden bg-zinc-900">
         {/* Фоновая картинка */}
@@ -103,14 +116,20 @@ export default function BookPage() {
         <div className="relative flex flex-col md:flex-row items-start gap-8 w-full z-10">
           <div className="w-[160px] h-[160px] flex-shrink-0 mx-auto md:mx-0 shadow-2xl relative group">
             <div className="absolute inset-0 bg-yellow-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
-            <Image
-              src={book.image}
-              alt={book.name}
-              width={160}
-              height={160}
-              unoptimized
-              className="rounded-xl object-cover border border-zinc-600 relative z-10"
-            />
+            {book.image ? (
+              <Image
+                src={book.image}
+                alt={book.name}
+                width={160}
+                height={160}
+                unoptimized
+                className="rounded-xl object-cover border border-zinc-600 relative z-10"
+              />
+            ) : (
+              <div className="w-[160px] h-[160px] bg-zinc-800 rounded-xl border border-zinc-600 flex items-center justify-center relative z-10">
+                <span className="text-zinc-500 text-xs">Нет изображения</span>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 text-gray-100 flex flex-col justify-between h-full">

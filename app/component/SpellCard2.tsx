@@ -1,58 +1,3 @@
-// "use client";
-
-
-// export interface SpellWithBook {
-//   id: number;
-//   name: string;
-//   tier: number;
-//   type: string;
-//   cost: string;
-//   description: string;
-//   icon: string; 
-//   bookName: string;
-//   bookImage: string;
-// }
-
-// interface SpellCardProps {
-//   spell: SpellWithBook;
-// }
-
-// export default function SpellCard({ spell }: SpellCardProps) {
-//   return (
-//     <div className="flex bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200">
-      
-//       {/* Картинка книги слева */}
-//       <img
-//         src={spell.bookImage}
-//         alt={spell.bookName}
-//         className="w-20 h-20 rounded-md  object-cover mr-4 flex-shrink-0"
-//       />
-
-//       {/* Основной контент заклинания */}
-//       <div className="flex-1">
-//         <div className="flex items-center gap-3 mb-3">
-//           <img
-//             src={spell.icon}
-//             alt={spell.name}
-//             className="w-14 h-14 rounded-md object-cover"
-//           />
-          
-//           <div className="flex-1">
-//             <h3 className="text-lg font-semibold text-gray-100">{spell.name}</h3>
-//             <p className="text-sm text-gray-400">
-//               {spell.type} • Tier {spell.tier}
-//             </p>
-//             <p className="text-xs text-gray-500 mt-1">{spell.bookName}</p>
-//           </div>
-          
-//           <span className="text-sm text-gray-300">{spell.cost}</span>
-//         </div>
-        
-//         <p className="text-sm text-gray-300 leading-relaxed">{spell.description}</p>
-//       </div>
-// }
-
-
 "use client";
 
 import Image from "next/image";
@@ -74,19 +19,15 @@ interface Spell {
 export default function SpellCard({ spell }: { spell: Spell }) {
   const { savedSpells, toggleSpell } = useSavedItems();
 
-  // Проверяем наличие в избранном по ИМЕНИ
   const isSaved = savedSpells.includes(spell.name);
 
-  // Форматируем стоимость
   const renderCost = () => {
     if (!spell.cost) return null;
-    if (typeof spell.cost === 'string') return spell.cost;
-    if (typeof spell.cost === 'object') {
-      return Object.entries(spell.cost)
-        .map(([key, val]) => `${val}`)
-        .join(', ');
+    let val = spell.cost;
+    if (typeof val === 'object') {
+       val = Object.values(val).join(', ');
     }
-    return "Cost info";
+    return `${val} маны`;
   };
 
   return (
@@ -94,7 +35,7 @@ export default function SpellCard({ spell }: { spell: Spell }) {
       
       {/* --- ВЕРХНЯЯ ЧАСТЬ: Книга и Название --- */}
       <div className="p-3 flex items-center justify-between gap-3 bg-zinc-800/40 border-b border-zinc-800/50 backdrop-blur-sm z-10">
-        <div className="flex items-center gap-3 overflow-hidden">
+        <div className="flex items-center gap-3 overflow-hidden flex-1">
           {/* Иконка книги */}
           <div className="relative w-8 h-8 flex-shrink-0 rounded-md overflow-hidden border border-zinc-700 shadow-sm bg-zinc-900">
             {spell.bookImage ? (
@@ -119,6 +60,13 @@ export default function SpellCard({ spell }: { spell: Spell }) {
             </p>
           </div>
         </div>
+
+        {/* Стоимость (перенесено сюда) */}
+        {renderCost() && (
+            <div className="flex-shrink-0 px-2 py-1 rounded bg-zinc-900/80 border border-zinc-700 text-[10px] text-zinc-300 font-mono whitespace-nowrap">
+                {renderCost()}
+            </div>
+        )}
 
         {/* Кнопка Лайка */}
         <button
@@ -169,11 +117,6 @@ export default function SpellCard({ spell }: { spell: Spell }) {
                 : "bg-blue-950/30 border-blue-900/50 text-blue-400"
             }`}>
               {spell.is_combat ? "Боевое" : "Стратегическое"}
-            </span>
-          )}
-          {renderCost() && (
-            <span className="px-2 py-1 rounded border bg-zinc-800/50 border-zinc-700 text-zinc-400">
-              {renderCost()}
             </span>
           )}
         </div>

@@ -8,7 +8,7 @@ import { useSavedItems } from "@/context/SavedItemsContext";
 interface BookType {
   id: number | string;
   name: string;
-  aspect: string; // Хаос, Порядок и т.д.
+  aspect: string; 
   tier: number;
   image?: string;
   description?: string;
@@ -18,7 +18,6 @@ export default function BookCard({ book }: { book: BookType }) {
   const { savedBooks, toggleBook } = useSavedItems();
   const isSaved = savedBooks.includes(book.name);
 
-  // Цвет окантовки в зависимости от аспекта (можно расширить)
   const getAspectColor = (aspect: string) => {
     switch (aspect?.toLowerCase()) {
       case 'chaos': return 'text-red-500 border-red-500/30';
@@ -33,13 +32,13 @@ export default function BookCard({ book }: { book: BookType }) {
 
   return (
     <div className="group relative bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-amber-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-900/10 flex flex-col h-full">
-      <div className="relative h-48 w-full bg-zinc-950">
+      <div className="relative h-36 w-full bg-zinc-950">
         {book.image ? (
           <Image
             src={book.image}
             alt={book.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="flex items-center justify-center h-full text-zinc-700">

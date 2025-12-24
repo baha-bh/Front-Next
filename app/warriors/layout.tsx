@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-// Добавляем иконку Swords
 import { ChevronDown, ChevronRight, Swords } from "lucide-react";
 
 const tabs = [
@@ -138,7 +137,6 @@ export default function WarriorsLayout({
 })}
 </div>
 </aside>
-{/* --- ЗДЕСЬ БУДЕТ МЕНЯТЬСЯ КОНТЕНТ --- */}
 {children}
 </div>
 </main>

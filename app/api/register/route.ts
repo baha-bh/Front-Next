@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
-    // 1️⃣ Создаём пользователя в Supabase Auth
     const { data: userData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
@@ -23,10 +22,9 @@ export async function POST(req: NextRequest) {
 
     const userId = userData.user.id;
 
-    // 2️⃣ Создаём или обновляем профиль в таблице profiles
     const { error: profileError } = await supabase
       .from("profiles")
-      .upsert([{ id: userId, username: name, email }]); // <- здесь upsert
+      .upsert([{ id: userId, username: name, email }]); 
 
     if (profileError) {
       return new Response(JSON.stringify({ error: profileError.message }), { status: 400 });

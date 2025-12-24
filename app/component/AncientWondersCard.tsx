@@ -7,15 +7,14 @@ interface Props {
 }
 
 export default function AncientWondersCard({ wonder }: Props) {
-  // Функция для определения цвета Tier
   const getTierColor = (tier: string) => {
     switch (tier) {
       case "Bronze":
-        return "#CD7F32"; // бронзовый
+        return "#CD7F32"; 
       case "Silver":
-        return "#C0C0C0"; // серебряный
+        return "#C0C0C0"; 
       case "Gold":
-        return "#FFD700"; // золотой
+        return "#FFD700"; 
       default:
         return "text-gray-300";
     }

@@ -119,9 +119,8 @@ export default function UnitCard({ unit }: UnitProps) {
   );
 }
 
-// Вспомогательный компонент для статов
 function StatBox({ icon, value, color, label }: { icon: React.ReactNode, value?: number, color: string, label: string }) {
-  if (value === undefined) return <div className="bg-zinc-950/50 rounded-lg h-14" />; // Пустой плейсхолдер для выравнивания
+  if (value === undefined) return <div className="bg-zinc-950/50 rounded-lg h-14" />; 
 
   return (
     <div className="flex flex-col items-center justify-center p-2 bg-zinc-950 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors group/stat">

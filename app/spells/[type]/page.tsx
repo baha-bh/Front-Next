@@ -1,9 +1,25 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import SpellCard from "../../component/SpellCard2";
-import { books, type Spell, type Book } from "../../lib/book";
+import { supabase } from "../../lib/supabase";
+import { Loader2 } from "lucide-react";
+
+interface Spell {
+  id: number;
+  name: string;
+  tier: number;
+  type: string;
+  cost: string;
+  description: string;
+  icon: string;
+  book_id?: number;
+  books?: {
+    name: string;
+    image: string;
+  };
+}
 
 interface SpellWithBook extends Spell {
   bookName: string;
@@ -12,16 +28,48 @@ interface SpellWithBook extends Spell {
 }
 
 const categoriesMap: Record<string, string> = {
-  transformation: "Transformations",
-  combat: "Combat Spells",
-  enchantment: "Enchantments",
-  strategic: "Strategic Spells",
-  siege: "Siege Projects",
+  transformation: "Трансформации",
+  combat: "Боевые заклинания",
+  enchantment: "Чары",
+  strategic: "Стратегические заклинания",
+  siege: "Осадные проекты",
 };
 
 export default function SpellsByTypePage() {
   const params = useParams();
   const type = params?.type;
+  const [spells, setSpells] = useState<SpellWithBook[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSpells = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("spells")
+        .select(`
+          *,
+          books (
+            name,
+            image
+          )
+        `);
+
+      if (error) {
+        console.error("Error fetching spells:", error);
+      } else if (data) {
+        const formattedSpells: SpellWithBook[] = data.map((spell: any) => ({
+          ...spell,
+          bookName: spell.books?.name || "Unknown Book",
+          bookImage: spell.books?.image || "",
+          uid: `${spell.id}`,
+        }));
+        setSpells(formattedSpells);
+      }
+      setLoading(false);
+    };
+
+    fetchSpells();
+  }, []);
 
   if (!type) {
     return (
@@ -34,20 +82,23 @@ export default function SpellsByTypePage() {
   const typeStr = Array.isArray(type) ? type[0].toLowerCase() : type.toLowerCase();
   const displayTitle = categoriesMap[typeStr] || typeStr;
 
-  const allSpells = useMemo<SpellWithBook[]>(() => {
-    return books.flatMap((b: Book) =>
-      b.spells.map((spell) => ({
-        ...spell,
-        bookName: b.name,
-        bookImage: b.image,
-        uid: `${b.id}-${spell.id}`,
-      }))
-    );
-  }, []);
+  const filtered = spells.filter((s) => {
+    const t = s.type ? s.type.toLowerCase() : "";
+    if (typeStr === 'combat') return t.includes('combat') || t.includes('боевое');
+    if (typeStr === 'strategic') return t.includes('strategic') || t.includes('стратегическое');
+    if (typeStr === 'enchantment') return t.includes('enchantment') || t.includes('чары');
+    if (typeStr === 'transformation') return t.includes('transformation') || t.includes('трансформация');
+    if (typeStr === 'siege') return t.includes('siege') || t.includes('осадный');
+    return t.includes(typeStr);
+  });
 
-  const filtered = allSpells.filter((s) =>
-    s.type.toLowerCase().includes(typeStr)
-  );
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-zinc-950">
+        <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
+      </div>
+    );
+  }
 
   return (
     <section className="flex-1 p-6 lg:p-10 overflow-y-auto w-full">

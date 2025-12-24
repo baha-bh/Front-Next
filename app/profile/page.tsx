@@ -3,17 +3,19 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Camera, Loader2, Scroll, Book, Users, Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Camera, Loader2, Scroll, Book, Users, Shield, Pencil, Check, X, Lock, LogOut, Eye, EyeOff } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
 import { useSavedItems } from "@/context/SavedItemsContext";
 import SpellCard from "@/app/component/SpellCard2";
-import BookCard from "@/app/component/BookCard"; // Импортируем новую карточку
-import UnitCard from "@/app/component/UnitCard"; // Импортируем новую карточку
+import BookCard from "@/app/component/BookCard"; 
+import UnitCard from "@/app/component/UnitCard"; 
 
 type Tab = "spells" | "books" | "units";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { savedSpells, savedBooks, savedUnits, isLoading: isDataLoading } = useSavedItems();
   const [activeTab, setActiveTab] = useState<Tab>("spells");
 
@@ -23,33 +25,55 @@ export default function ProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+
   const [favoriteSpellsData, setFavoriteSpellsData] = useState<any[]>([]);
   const [favoriteBooksData, setFavoriteBooksData] = useState<any[]>([]);
-  const [favoriteUnitsData, setFavoriteUnitsData] = useState<any[]>([]); // Данные юнитов
+  const [favoriteUnitsData, setFavoriteUnitsData] = useState<any[]>([]); 
   const [isLoadingContent, setIsLoadingContent] = useState(false);
 
-  // 1. Загрузка профиля (без изменений)
   useEffect(() => {
-    const getData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (profileData) setProfile(profileData);
+    const fetchProfileData = async (currentUser: any) => {
+      setUser(currentUser);
+      
+      if (currentUser) {
+        const { data: profileData } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        if (profileData) {
+          setProfile(profileData);
+          setNewUsername(profileData.username || currentUser.email?.split("@")[0] || "");
+        } else {
+          setNewUsername(currentUser.email?.split("@")[0] || "");
+        }
+      } else {
+        setProfile(null);
+        setNewUsername("");
       }
       setIsAuthLoading(false);
     };
-    getData();
+
+    supabase.auth.getUser().then(({ data: { user } }) => fetchProfileData(user));
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      fetchProfileData(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // 2. Загрузка контента
   useEffect(() => {
     const fetchFavorites = async () => {
       if (isDataLoading) return;
       setIsLoadingContent(true);
 
       try {
-        // --- ЗАКЛИНАНИЯ (по имени) ---
+      
         if (savedSpells.length > 0) {
           const { data } = await supabase
             .from('spells')
@@ -67,24 +91,23 @@ export default function ProfilePage() {
            setFavoriteSpellsData([]);
         }
 
-        // --- КНИГИ (по имени) ---
+        
         if (savedBooks.length > 0) {
           const { data } = await supabase
             .from('books')
             .select('*')
-            .in('name', savedBooks); // Ищем по имени
+            .in('name', savedBooks); 
             
           if (data) setFavoriteBooksData(data);
         } else {
            setFavoriteBooksData([]);
         }
 
-        // --- ЮНИТЫ (по имени) ---
         if (savedUnits.length > 0) {
           const { data } = await supabase
             .from('units')
             .select('*')
-            .in('name', savedUnits); // Ищем по имени
+            .in('name', savedUnits); 
             
           if (data) setFavoriteUnitsData(data);
         } else {
@@ -99,10 +122,61 @@ export default function ProfilePage() {
     };
 
     if (!isDataLoading) fetchFavorites();
-  }, [isDataLoading, savedSpells, savedBooks, savedUnits]); 
+
+  }, [isDataLoading]); 
 
 
-  // 3. Фильтрация (Мгновенное удаление при снятии лайка)
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    try {
+      const updates = {
+        id: user.id,
+        username: newUsername,
+        updated_at: new Date(),
+      };
+
+      const { error } = await supabase.from('profiles').upsert(updates);
+      if (error) throw error;
+
+      setProfile({ ...profile, ...updates });
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error(error);
+      alert("Ошибка обновления профиля: " + error.message);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      alert("Пароли не совпадают!");
+      return;
+    }
+    if (newPassword.length < 6) {
+      alert("Пароль должен быть не менее 6 символов");
+      return;
+    }
+
+    setIsPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      alert("Пароль успешно изменен!");
+      setIsChangingPassword(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      console.error(error);
+      alert("Ошибка смены пароля: " + error.message);
+    } finally {
+      setIsPasswordLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
   const displayedSpells = useMemo(() => favoriteSpellsData.filter(s => savedSpells.includes(s.name)), [favoriteSpellsData, savedSpells]);
   const displayedBooks = useMemo(() => favoriteBooksData.filter(b => savedBooks.includes(b.name)), [favoriteBooksData, savedBooks]);
   const displayedUnits = useMemo(() => favoriteUnitsData.filter(u => savedUnits.includes(u.name)), [favoriteUnitsData, savedUnits]);
@@ -201,10 +275,108 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex-1 text-center md:text-left mb-2">
-            <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-md">
-              {profile?.username || user.email?.split("@")[0]}
-            </h1>
-            <p className="text-zinc-400 text-sm mt-1">Архимаг • {user.email}</p>
+            {isEditing ? (
+              <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
+                <input 
+                  type="text" 
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="bg-zinc-800 border border-zinc-700 text-white px-3 py-1 rounded text-2xl font-bold focus:outline-none focus:border-amber-500"
+                />
+                <button onClick={handleUpdateProfile} className="p-2 bg-green-600/20 text-green-500 border border-green-600/50 rounded hover:bg-green-600/40 transition-colors">
+                  <Check size={20}/>
+                </button>
+                <button onClick={() => setIsEditing(false)} className="p-2 bg-red-600/20 text-red-500 border border-red-600/50 rounded hover:bg-red-600/40 transition-colors">
+                  <X size={20}/>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 justify-center md:justify-start group/edit mb-2">
+                <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-md">
+                  {profile?.username || user.email?.split("@")[0]}
+                </h1>
+                <button 
+                  onClick={() => setIsEditing(true)} 
+                  className="opacity-0 group-hover/edit:opacity-100 transition-all text-zinc-400 hover:text-amber-500 p-1"
+                  title="Редактировать имя"
+                >
+                  <Pencil size={18} />
+                </button>
+              </div>
+            )}
+            <p className="text-zinc-400 text-sm mt-1"> {user.email}</p>
+
+            {/* Смена пароля и Выход */}
+            <div className="mt-4 flex flex-col items-center md:items-start gap-3">
+              {!isChangingPassword ? (
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => setIsChangingPassword(true)}
+                    className="flex items-center gap-2 text-sm text-zinc-500 hover:text-amber-500 transition-colors"
+                  >
+                    <Lock size={14} />
+                    Сменить пароль
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-sm text-zinc-500 hover:text-red-500 transition-colors"
+                  >
+                    <LogOut size={14} />
+                    Выйти
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 bg-zinc-900/80 p-4 rounded-lg border border-zinc-700 mt-2 w-full max-w-xs backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
+                  <h3 className="text-sm font-bold text-zinc-300">Новый пароль</h3>
+                  
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="Минимум 6 символов"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="bg-zinc-950 border border-zinc-700 text-white px-3 py-2 pr-10 rounded text-sm w-full focus:outline-none focus:border-amber-500 transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="Подтвердите пароль"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="bg-zinc-950 border border-zinc-700 text-white px-3 py-2 rounded text-sm w-full focus:outline-none focus:border-amber-500 transition-colors"
+                  />
+                  
+                  <div className="flex gap-2 mt-1">
+                    <button 
+                      onClick={handleChangePassword} 
+                      disabled={isPasswordLoading}
+                      className="flex-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-black text-sm font-bold rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isPasswordLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto"/> : "Сохранить"}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsChangingPassword(false);
+                        setNewPassword("");
+                        setConfirmPassword("");
+                      }} 
+                      className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm rounded border border-zinc-700 transition-colors"
+                    >
+                      Отмена
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6">
               <StatBadge icon={<Scroll size={14} />} label="Заклинаний" value={savedSpells.length} />
               <StatBadge icon={<Book size={14} />} label="Книг" value={savedBooks.length} />
@@ -261,7 +433,7 @@ export default function ProfilePage() {
 
               {/* --- СПИСОК ЮНИТОВ --- */}
               {activeTab === "units" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {displayedUnits.length > 0 ? (
                     displayedUnits.map((unit) => (
                       <UnitCard key={unit.id} unit={unit} />

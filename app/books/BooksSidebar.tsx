@@ -36,15 +36,17 @@ export default function BooksSidebar({ books }: { books: BookSummary[] }) {
 
   return (
     <aside className="w-full md:w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col h-screen sticky top-0">
-      <div className="p-4 border-b border-zinc-800 bg-zinc-900 z-10">
+      <div className="h-16 flex items-center px-6 border-b border-zinc-800 bg-zinc-900 z-10">
         <Link 
           href="/books" 
-          className={`flex items-center gap-2 text-lg font-bold transition-colors ${
-            pathname === "/books" ? "text-yellow-400" : "text-gray-200 hover:text-yellow-500"
-          }`}
+          className="flex items-center gap-3 group"
         >
-          <Book className="w-5 h-5" />
-          Библиотека
+          <div className="text-amber-500 group-hover:text-amber-400 transition-colors">
+            <Book className="w-6 h-6" />
+          </div>
+          <span className="text-lg font-bold text-white tracking-wide group-hover:text-gray-200 transition-colors">
+            Библиотека магии
+          </span>
         </Link>
       </div>
 

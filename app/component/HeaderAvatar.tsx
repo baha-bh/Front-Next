@@ -8,23 +8,35 @@ import { supabase } from "../lib/supabase";
 export default function HeaderAvatar() {
   const [avatarUrl, setAvatarUrl] = useState("/default-avatar.png");
 
-  useEffect(() => {
-    const getUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('avatar_url')
-          .eq('id', user.id)
-          .single();
-        if (data?.avatar_url) {
-          setAvatarUrl(data.avatar_url);
-        }
-      }
-    };
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('avatar_url')
+      .eq('id', userId)
+      .single();
+    if (data?.avatar_url) {
+      setAvatarUrl(data.avatar_url);
+    } else {
+      setAvatarUrl("/default-avatar.png");
+    }
+  };
 
-    getUserProfile();
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) fetchProfile(user.id);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setAvatarUrl("/default-avatar.png");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

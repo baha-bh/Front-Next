@@ -2,36 +2,47 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// ИСПРАВЛЕНО: правильный путь к клиенту Supabase
-import { supabase } from "../lib/supabase"; 
 
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setMsg("");
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        // Если вы отключили подтверждение почты в Supabase, это поле можно убрать
-        emailRedirectTo: `${location.origin}/auth/callback`,
-      },
-    });
+    if (password !== confirmPassword) {
+      setError("Пароли не совпадают");
+      return;
+    }
 
-    if (error) {
-      setError(error.message);
-    } else {
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name: username }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Ошибка регистрации");
+      }
+
       setMsg("Регистрация успешна! Проверьте почту или войдите.");
-      // Если авто-подтверждение включено, можно сразу перенаправить:
-      // router.push("/login");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,6 +55,15 @@ export default function RegisterPage() {
         {msg && <p className="text-green-400 mb-4">{msg}</p>}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Логин (Username)"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="px-3 py-2 rounded bg-gray-800 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+
           <input
             type="email"
             placeholder="Email"
@@ -63,11 +83,22 @@ export default function RegisterPage() {
             className="px-3 py-2 rounded bg-gray-800 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
 
+          <input
+            type="password"
+            placeholder="Повторите пароль"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength={6}
+            className="px-3 py-2 rounded bg-gray-800 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+
           <button
             type="submit"
-            className="bg-yellow-400 text-black font-semibold py-2 rounded hover:bg-yellow-300 transition"
+            disabled={loading}
+            className="bg-yellow-400 text-black font-semibold py-2 rounded hover:bg-yellow-300 transition disabled:opacity-50"
           >
-            Создать аккаунт
+            {loading ? "Создание..." : "Создать аккаунт"}
           </button>
         </form>
 

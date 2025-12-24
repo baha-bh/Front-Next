@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { Sparkles } from "lucide-react";
 
 const categories = [
-  { key: "transformation", label: "Transformations" },
-  { key: "combat", label: "Combat Spells" },
-  { key: "enchantment", label: "Enchantments" },
-  { key: "strategic", label: "Strategic Spells" },
-  { key: "siege", label: "Siege Projects" },
+  { key: "transformation", label: "Трансформации" },
+  { key: "combat", label: "Боевые заклинания" },
+  { key: "enchantment", label: "Чары" },
+  { key: "strategic", label: "Стратегические" },
+  { key: "siege", label: "Осадные проекты" },
 ];
 
 export default function SpellsLayout({
@@ -18,7 +18,6 @@ export default function SpellsLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  // Получаем текущую категорию из URL: /spells/[type]
   const activeType = pathname.split("/")[2];
 
   return (

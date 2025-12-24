@@ -56,7 +56,7 @@ export default function EventCard({ event }: Props) {
             }}
           />
           
-          {/* Слой с рамкой (Runecircle) поверх маски */}
+          {/* Слой с рамкой поверх маски */}
           <img
             src="https://minionsart.github.io/aow4db/Icons/Interface/Runecircle.png"
             alt="overlay"
