@@ -16,7 +16,7 @@ export default function AddUnitForm() {
     culture: "",
     type: "",
     unitClass: "",
-    tier: 1,
+    tier: "I",
     health: 0,
     attack: 0,
     defense: 0,
@@ -28,7 +28,13 @@ export default function AddUnitForm() {
 
   const fetchUnits = async () => {
     const { data } = await supabase.from("units").select("*").order("created_at", { ascending: false });
-    if (data) setUnitsList(data);
+    if (data) {
+      const mappedData = data.map((unit: any) => ({
+        ...unit,
+        unitClass: unit.unit_class || unit.unitClass
+      }));
+      setUnitsList(mappedData);
+    }
   };
 
   useEffect(() => {
@@ -68,8 +74,11 @@ export default function AddUnitForm() {
     }
 
     try {
+      const { unitClass, type, ...rest } = formData;
       const payload = {
-        ...formData,
+        ...rest,
+        unit_class: unitClass,
+        type: type === "" ? null : type,
         upkeep: { resource1: "Gold", amount1: 0 }, 
         cost: { resource1: "Gold", amount1: 0 },   
       };
@@ -85,7 +94,7 @@ export default function AddUnitForm() {
       }
 
       setFormData({
-        name: "", culture: "", type: "", unitClass: "", tier: 1,
+        name: "", culture: "", type: "", unitClass: "", tier: "I",
         health: 0, attack: 0, defense: 0, resistance: 0, movement: 32, image: ""
       });
       setImagePreview(null);
@@ -118,7 +127,7 @@ export default function AddUnitForm() {
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({
-      name: "", culture: "", type: "", unitClass: "", tier: 1,
+      name: "", culture: "", type: "", unitClass: "", tier: "I",
       health: 0, attack: 0, defense: 0, resistance: 0, movement: 32, image: ""
     });
     setImagePreview(null);
@@ -276,13 +285,15 @@ export default function AddUnitForm() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Tier</label>
-                    <input
-                      type="number"
-                      min="1"
+                    <select
                       value={formData.tier}
-                      onChange={(e) => setFormData({ ...formData, tier: parseInt(e.target.value) })}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2.5 text-white focus:border-yellow-500 outline-none"
-                    />
+                      onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
+                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2.5 text-white focus:border-yellow-500 outline-none appearance-none"
+                    >
+                      {["I", "II", "III", "IV", "V"].map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
