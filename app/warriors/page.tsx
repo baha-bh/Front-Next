@@ -3,5 +3,5 @@
 import { redirect } from "next/navigation";
 
 export default function WarriorsPage() {
-  redirect("/warriors/culture/ФЕОДАЛЫ");
+  redirect(`/warriors/culture/${encodeURIComponent("ФЕОДАЛЫ")}`);
 }
