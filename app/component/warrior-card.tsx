@@ -83,6 +83,7 @@ export default function UnitCard({ unit }: UnitProps) {
             />
           </button>
         </div>
+        </div>
 
         <div className="absolute inset-0 flex items-end justify-center pb-4 px-2">
           {unit.image && !imageError ? (
@@ -135,7 +136,6 @@ export default function UnitCard({ unit }: UnitProps) {
            <StatBox icon={<Move size={14} />} value={unit.movement} color="text-yellow-400" label="Move" />
         </div>
       </div>
-    </div>
     </div>
   );
 }
