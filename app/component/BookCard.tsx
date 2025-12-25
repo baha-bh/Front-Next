@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Book } from "lucide-react";
 import { useSavedItems } from "@/context/SavedItemsContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface BookType {
   id: number | string;
@@ -15,7 +17,8 @@ interface BookType {
 }
 
 export default function BookCard({ book }: { book: BookType }) {
-  const { savedBooks, toggleBook } = useSavedItems();
+  const { savedBooks, toggleBook, isAuthenticated } = useSavedItems();
+  const [showLoginHint, setShowLoginHint] = useState(false);
   const isSaved = savedBooks.includes(book.name);
 
   const getAspectColor = (aspect: string) => {
@@ -47,19 +50,39 @@ export default function BookCard({ book }: { book: BookType }) {
         )}
         
         {/* Кнопка лайка */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            toggleBook(book.name);
-          }}
-          className="absolute top-3 right-3 z-20 p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/80 transition-colors group/heart"
-        >
-          <Heart
-            className={`w-5 h-5 transition-all ${
-              isSaved ? "fill-red-500 text-red-500" : "text-white group-hover/heart:text-red-400"
-            }`}
-          />
-        </button>
+        <div className="absolute top-3 right-3 z-20">
+          <AnimatePresence>
+            {showLoginHint && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute right-0 top-10 w-40 bg-red-900/90 text-white text-[10px] p-2 rounded border border-red-500/50 backdrop-blur-md shadow-xl z-50 text-center"
+              >
+                Войдите, чтобы сохранять
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              if (!isAuthenticated) {
+                console.log("User not authenticated, showing hint");
+                setShowLoginHint(true);
+                setTimeout(() => setShowLoginHint(false), 2000);
+                return;
+              }
+              toggleBook(book.name);
+            }}
+            className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/80 transition-colors group/heart"
+          >
+            <Heart
+              className={`w-5 h-5 transition-all ${
+                isSaved ? "fill-red-500 text-red-500" : "text-white group-hover/heart:text-red-400"
+              }`}
+            />
+          </button>
+        </div>
 
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-zinc-900 to-transparent h-20" />
       </div>

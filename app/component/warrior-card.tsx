@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Heart, Shield, Zap, Activity, Move, Sword } from "lucide-react";
 import { useSavedItems } from "@/context/SavedItemsContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface UnitProps {
   unit: {
@@ -23,8 +24,9 @@ interface UnitProps {
 }
 
 export default function UnitCard({ unit }: UnitProps) {
-  const { savedUnits, toggleUnit } = useSavedItems();
+  const { savedUnits, toggleUnit, isAuthenticated } = useSavedItems();
   const [imageError, setImageError] = useState(false);
+  const [showLoginHint, setShowLoginHint] = useState(false);
   
   const isSaved = savedUnits.includes(unit.name);
 
@@ -47,17 +49,35 @@ export default function UnitCard({ unit }: UnitProps) {
             )}
           </div>
 
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              toggleUnit(unit.name);
-            }}
-            className="p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-zinc-800 border border-transparent hover:border-zinc-600 transition-all group/btn"
-          >
-            <Heart
-              className={`w-5 h-5 transition-all ${
-                isSaved 
-                  ? "fill-red-500 text-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" 
+          <div className="relative">
+            <AnimatePresence>
+              {showLoginHint && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 top-10 w-48 bg-red-900/90 text-white text-[10px] p-2 rounded border border-red-500/50 backdrop-blur-md shadow-xl z-50 text-center"
+                >
+                  Войдите, чтобы сохранять
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                if (!isAuthenticated) {
+                  setShowLoginHint(true);
+                  setTimeout(() => setShowLoginHint(false), 2000);
+                  return;
+                }
+                toggleUnit(unit.name);
+              }}
+              className="p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-zinc-800 border border-transparent hover:border-zinc-600 transition-all group/btn"
+            >
+              <Heart
+                className={`w-5 h-5 transition-all ${
+                  isSaved 
+                    ? "fill-red-500 text-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" 
                   : "text-zinc-400 group-hover/btn:text-red-400"
               }`}
             />
@@ -115,6 +135,7 @@ export default function UnitCard({ unit }: UnitProps) {
            <StatBox icon={<Move size={14} />} value={unit.movement} color="text-yellow-400" label="Move" />
         </div>
       </div>
+    </div>
     </div>
   );
 }

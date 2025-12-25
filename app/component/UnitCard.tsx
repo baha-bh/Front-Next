@@ -10,7 +10,7 @@ interface UnitCardProps {
 }
 
 export default function UnitCard({ unit }: UnitCardProps) {
-  const { savedUnits, toggleUnit } = useSavedItems();
+  const { savedUnits, toggleUnit, isAuthenticated } = useSavedItems();
   const isSaved = savedUnits.includes(unit.name);
 
   return (
@@ -20,6 +20,10 @@ export default function UnitCard({ unit }: UnitCardProps) {
       <button
         onClick={(e) => {
           e.preventDefault();
+          if (!isAuthenticated) {
+            alert("Для сохранения юнитов необходимо авторизоваться!");
+            return;
+          }
           toggleUnit(unit.name);
         }}
         className="absolute top-3 left-3 z-20 p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/80 transition-colors group/heart"

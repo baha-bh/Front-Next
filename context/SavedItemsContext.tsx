@@ -8,6 +8,7 @@ interface SavedItemsContextType {
   savedBooks: string[];
   savedUnits: string[];
   isLoading: boolean;
+  isAuthenticated: boolean;
   toggleSpell: (name: string) => void;
   toggleBook: (name: string) => void;
   toggleUnit: (name: string) => void;
@@ -21,6 +22,8 @@ export function SavedItemsProvider({ children }: { children: React.ReactNode }) 
   const [savedUnits, setSavedUnits] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+
+  const isAuthenticated = !!userId;
 
   // 1. Следим за авторизацией
   useEffect(() => {
@@ -74,7 +77,7 @@ export function SavedItemsProvider({ children }: { children: React.ReactNode }) 
   const toggleUnit = (name: string) => toggleItem("saved_units", savedUnits, setSavedUnits, name);
 
   return (
-    <SavedItemsContext.Provider value={{ savedSpells, savedBooks, savedUnits, isLoading, toggleSpell, toggleBook, toggleUnit }}>
+    <SavedItemsContext.Provider value={{ savedSpells, savedBooks, savedUnits, isLoading, isAuthenticated, toggleSpell, toggleBook, toggleUnit }}>
       {children}
     </SavedItemsContext.Provider>
   );

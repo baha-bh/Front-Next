@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import { useSavedItems } from "@/context/SavedItemsContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Spell {
   id: number | string;
@@ -17,7 +19,8 @@ interface Spell {
 }
 
 export default function SpellCard({ spell }: { spell: Spell }) {
-  const { savedSpells, toggleSpell } = useSavedItems();
+  const { savedSpells, toggleSpell, isAuthenticated } = useSavedItems();
+  const [showLoginHint, setShowLoginHint] = useState(false);
 
   const isSaved = savedSpells.includes(spell.name);
 
@@ -69,21 +72,40 @@ export default function SpellCard({ spell }: { spell: Spell }) {
         )}
 
         {/* Кнопка Лайка */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            toggleSpell(spell.name);
-          }}
-          className="relative z-20 p-1.5 rounded-full hover:bg-zinc-800 transition-colors focus:outline-none group/heart"
-        >
-          <Heart
-            className={`w-5 h-5 transition-all duration-300 ${
-              isSaved 
-                ? "fill-red-500 text-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" 
-                : "text-zinc-600 group-hover/heart:text-red-400"
-            }`}
-          />
-        </button>
+        <div className="relative">
+          <AnimatePresence>
+            {showLoginHint && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute right-0 top-8 w-40 bg-red-900/90 text-white text-[10px] p-2 rounded border border-red-500/50 backdrop-blur-md shadow-xl z-50 text-center"
+              >
+                Войдите, чтобы сохранять
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              if (!isAuthenticated) {
+                setShowLoginHint(true);
+                setTimeout(() => setShowLoginHint(false), 2000);
+                return;
+              }
+              toggleSpell(spell.name);
+            }}
+            className="relative z-20 p-1.5 rounded-full hover:bg-zinc-800 transition-colors focus:outline-none group/heart"
+          >
+            <Heart
+              className={`w-5 h-5 transition-all duration-300 ${
+                isSaved 
+                  ? "fill-red-500 text-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" 
+                  : "text-zinc-600 group-hover/heart:text-red-400"
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* --- КАРТИНКА ЗАКЛИНАНИЯ (ICON) --- */}
